@@ -86,6 +86,7 @@ public class NotreProjet extends Applet {
     }
 
     public void deselect() {
+        checkLogin();
         pin.reset();
     }
 
@@ -101,11 +102,25 @@ public class NotreProjet extends Applet {
                 modifyPin(apdu);
                 break;
             case INS_SIGN_MESSAGE:
+                signMessage(apdu);
                 break;
             case INS_SEND_PUBLIC_KEY:
                 sendPublicKey(apdu);
                 break;
         }
+    }
+
+    private void signMessage(APDU apdu) {
+        checkLogin();
+        byte[] buffer = apdu.getBuffer();
+
+        if (buffer[ISO7816.OFFSET_LC] == 0) {
+            ISOException.throwIt(ISO7816.SW_DATA_INVALID);
+        }
+    }
+
+    private void sign(byte[] buffer) {
+        // TODO : à regarder
     }
 
     private void sendPublicKey(APDU apdu) {
