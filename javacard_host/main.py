@@ -1,3 +1,5 @@
+import pyscard
+
 def main(input_data: str) -> int:
     print(input_data)
     return 0

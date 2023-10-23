@@ -27,10 +27,6 @@
         <generate_applet_bin_std PACKAGENAMEUNPACKAGED="notreprojet" APPLETNAME="NotreProjet"/>
     </target>
 
-    <target name="binarize.all.egate" depends="verifycap.all">
-        <generate_applet_bin_egate PACKAGENAMEUNPACKAGED="notreprojet" MODULENAME="NotreProjet"/>
-    </target>
-
     <!-- ======================================================== -->
     <!-- Configuration section ends. Do not edit below this line -->
     <!-- ======================================================== -->
