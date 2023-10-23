@@ -16,35 +16,35 @@
 package notreprojet;
 
 import javacard.framework.*;
+import javacard.security.KeyPair;
+import javacard.security.PrivateKey;
+import javacard.security.PublicKey;
+import javacard.security.RSAPrivateKey;
 
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import javacard.security.RSAPublicKey;
 
 /**
+ *
  */
 
-public class NotreProjet extends Applet
-{
+public class NotreProjet extends Applet {
+    public static final byte[] DEFAULT_PIN = {0x01, 0x02, 0x03, 0x04};
+    public static final short KEY_BITS = 512;
     /* constants declaration */
     // code of CLA byte in the command APDU header
-    final static byte SIGNER_CLA = (byte)0xB0;
-
+    final static byte SIGNER_CLA = (byte) 0xB0;
     // codes of INS byte in the command APDU header
-    final static byte MODIFY_PIN = (byte) 0x02;
-    final static byte SIGN_MESSAGE = (byte) 0x04;
-    final static byte SEND_PUBLIC_KEY = (byte) 0x05;
-
+    final static byte INS_MODIFY_PIN = (byte) 0x02;
+    final static byte INS_SIGN_MESSAGE = (byte) 0x04;
+    final static byte INS_SEND_PUBLIC_KEY = (byte) 0x05;
     final static byte PIN_LENGTH = 4;
-
     final static byte MAX_PIN_RETRY = 3;
-
-    public static final byte[] DEFAULT_PIN = {0x01, 0x02, 0x03, 0x04};
-
-
     OwnerPIN pin;
-    RSAPrivateKey privateKey;
-    RSAPublicKey publicKey;
+    private KeyPair keyPair;
+
+    private RSAPrivateKey privateKey;
+
+    private RSAPublicKey publicKey;
 
 
     /**
@@ -54,16 +54,18 @@ public class NotreProjet extends Applet
     protected NotreProjet() {
         pin = new OwnerPIN(MAX_PIN_RETRY, PIN_LENGTH);
         setDefaultPin();
+        generateRSAKeys();
         register();
     }
+
     /**
      * Installs this applet.
-     * @param bArray the array containing installation parameters
+     *
+     * @param bArray  the array containing installation parameters
      * @param bOffset the starting offset in bArray
      * @param bLength the length in bytes of the parameter data in bArray
      */
-    public static void install(byte[] bArray, short bOffset, byte bLength)
-    {
+    public static void install(byte[] bArray, short bOffset, byte bLength) {
         // Create the Signer applet instance
         new NotreProjet();
     }
@@ -73,40 +75,73 @@ public class NotreProjet extends Applet
     }
 
     private void generateRSAKeys() {
-        KeyPair keyGenerator = new KeyPair(KeyPair)
+        keyPair = new KeyPair(KeyPair.ALG_RSA, KEY_BITS);
+        keyPair.genKeyPair();
+        privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        publicKey = (RSAPublicKey) keyPair.getPublic();
     }
-
-    /**
-     * Processes an incoming APDU.
-     * @see APDU
-     * @param apdu the incoming APDU
-     * @exception ISOException with the response bytes per ISO 7816-4
-     */
 
     public boolean select() {
-        if (pin.getTriesRemaining() == 0) return false;
-        return true;
+        return pin.getTriesRemaining() != 0;
     }
-    public void process(APDU apdu)
-    {
-        byte buffer[] = apdu.getBuffer();
 
-        short bytesRead = apdu.setIncomingAndReceive();
-        short echoOffset = (short)0;
+    public void deselect() {
+        pin.reset();
+    }
 
-        while ( bytesRead > 0 ) {
-            Util.arrayCopyNonAtomic(buffer, ISO7816.OFFSET_CDATA, echoBytes, echoOffset, bytesRead);
-            echoOffset += bytesRead;
-            bytesRead = apdu.receiveBytes(ISO7816.OFFSET_CDATA);
+    public void process(APDU apdu) {
+        byte[] buffer = apdu.getBuffer();
+
+        if ((buffer[ISO7816.OFFSET_CLA] == 0) && (buffer[ISO7816.OFFSET_INS] == (byte) (0xA4))) {
+            return;
         }
 
-        apdu.setOutgoing();
-        apdu.setOutgoingLength( (short) (echoOffset + 5) );
+        switch (buffer[ISO7816.OFFSET_INS]) {
+            case INS_MODIFY_PIN:
+                modifyPin(apdu);
+                break;
+            case INS_SIGN_MESSAGE:
+                break;
+            case INS_SEND_PUBLIC_KEY:
+                sendPublicKey(apdu);
+                break;
+        }
+    }
 
-        // echo header
-        apdu.sendBytes( (short)0, (short) 5);
-        // echo data
-        apdu.sendBytesLong( echoBytes, (short) 0, echoOffset );
+    private void sendPublicKey(APDU apdu) {
+        short keyToSend = serializeKey(publicKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, keyToSend);
+    }
+
+    private short serializeKey(RSAPublicKey key, byte[] buffer, short offset) {
+        // Code from the thread in stackoverflow :
+        // https://stackoverflow.com/questions/42690733/javacard-send-rsa-public-key-in-apdu
+
+        short expLen = key.getExponent(buffer, (short) (offset + 2));
+        Util.setShort(buffer, offset, expLen);
+        short modLen = key.getModulus(buffer, (short) (offset + 4 + expLen));
+        Util.setShort(buffer, (short) (offset + 2 + expLen), modLen);
+        return (short) (4 + expLen + modLen);
+    }
+
+    private void checkLogin() {
+        if (!pin.isValidated()) {
+            ISOException.throwIt(ISO7816.SW_SECURITY_STATUS_NOT_SATISFIED);
+        }
+    }
+
+    private void modifyPin(APDU apdu) {
+        checkLogin();
+        byte[] buffer = apdu.getBuffer();
+
+        if (buffer[ISO7816.OFFSET_LC] != PIN_LENGTH) {
+            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+        }
+
+        // Comment maybe useless need more research
+        apdu.setIncomingAndReceive();
+
+        pin.update(buffer, ISO7816.OFFSET_CDATA, PIN_LENGTH);
     }
 
 }
