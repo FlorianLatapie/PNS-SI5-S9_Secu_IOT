@@ -27,3 +27,16 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### GPShell ###
+globalplatform.dll
+gppcscconnectionplugin.dll
+gpshell.exe
+legacy.dll
+libcrypto-1_1.dll
+libcrypto-3.dll
+libssl-1_1.dll
+libssl-3.dll
+vcruntime140.dll
+zlibwapi.dll
+
