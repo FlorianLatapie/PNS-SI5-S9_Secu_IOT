@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="upload.ps1" type="PowerShellRunType" factoryName="PowerShell" scriptUrl="$PROJECT_DIR$/upload.ps1" workingDirectory="C:\Users\Florian\Documents\GitHub\.Polytech\S9\secu_iot\PNS-SI5-S9_Secu_IOT\javacard" executablePath="$PROJECT_DIR$/../../../../../../../../../Windows/System32/WindowsPowerShell/v1.0/powershell.exe">
-    <envs />
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="check_gpshell.ps1" run_configuration_type="PowerShellRunType" />
-    </method>
-  </configuration>
-</component>
