@@ -61,10 +61,10 @@ Voici la structure que vous devriez avoir
 
 - Installation sur la carte
   - Ouvrez un terminal dans le dossier `javacard`
-  - Tapez la commande suivante :
+  - Tapez la commande suivante (depuis PowerShell)
 
 ```bash
-gpshell.exe upload.gp
+.\gpshell.exe upload.gp
 ```
 
   - La dernière ligne de l'output devrait être : `release_contextcommand time: 0 ms`
