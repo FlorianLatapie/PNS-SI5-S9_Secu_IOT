@@ -16,12 +16,7 @@
 package notreprojet;
 
 import javacard.framework.*;
-import javacard.security.KeyPair;
-import javacard.security.PrivateKey;
-import javacard.security.PublicKey;
-import javacard.security.RSAPrivateKey;
-
-import javacard.security.RSAPublicKey;
+import javacard.security.*;
 
 /**
  *
@@ -35,10 +30,12 @@ public class NotreProjet extends Applet {
     final static byte SIGNER_CLA = (byte) 0xB0;
     // codes of INS byte in the command APDU header
 
-    final static byte INS_LOGIN = (byte) 0x00;
+    final static byte INS_LOGIN = (byte) 0x01;
     final static byte INS_MODIFY_PIN = (byte) 0x02;
     final static byte INS_SIGN_MESSAGE = (byte) 0x04;
     final static byte INS_SEND_PUBLIC_KEY = (byte) 0x05;
+
+    final static byte INS_FACTORY_RESET = (byte) 0x06;
     final static byte PIN_LENGTH = 4;
     final static byte MAX_PIN_RETRY = 3;
     OwnerPIN pin;
@@ -55,8 +52,7 @@ public class NotreProjet extends Applet {
 
     protected NotreProjet() {
         pin = new OwnerPIN(MAX_PIN_RETRY, PIN_LENGTH);
-        setDefaultPin();
-        generateRSAKeys();
+        factoryReset();
         register();
     }
 
@@ -112,7 +108,15 @@ public class NotreProjet extends Applet {
             case INS_SEND_PUBLIC_KEY:
                 sendPublicKey(apdu);
                 break;
+            case INS_FACTORY_RESET:
+                factoryReset();
+                break;
         }
+    }
+
+    private void factoryReset() {
+        setDefaultPin();
+        generateRSAKeys();
     }
 
     private void login(APDU apdu) {
@@ -141,6 +145,26 @@ public class NotreProjet extends Applet {
         if (buffer[ISO7816.OFFSET_LC] == 0) {
             ISOException.throwIt(ISO7816.SW_DATA_INVALID);
         }
+
+        // Maybe a problem on the length of the buffer, see that later
+        sign(buffer);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC]);
+
+    }
+
+    /**
+     * Sign the fingerprint of the message with the private key
+     * buffer : the buffer to sign
+     */
+    private void sign(byte[] buffer) {
+        Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
+        signature.init(privateKey, Signature.MODE_SIGN);
+        byte[] signedMessage = new byte[signature.getLength()];
+        short signatureLength = signature.sign(buffer, (short) ISO7816.OFFSET_CDATA, ISO7816.OFFSET_LC, signedMessage, (short) 0);
+        Util.arrayCopy(signedMessage, (short) 0, buffer, ISO7816.OFFSET_CDATA, signatureLength);
+
+        // Maybe need to free the byte array signedMessage
+
     }
 
     private void sendPublicKey(APDU apdu) {
