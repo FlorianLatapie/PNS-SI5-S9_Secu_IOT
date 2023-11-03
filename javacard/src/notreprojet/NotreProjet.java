@@ -27,7 +27,7 @@ public class NotreProjet extends Applet {
     public static final short KEY_BITS = 512;
     /* constants declaration */
     // code of CLA byte in the command APDU header
-    final static byte SIGNER_CLA = (byte) 0xB0;
+    final static byte CLA = (byte) 0xB0;
     // codes of INS byte in the command APDU header
 
     final static byte INS_LOGIN = (byte) 0x01;
@@ -89,10 +89,17 @@ public class NotreProjet extends Applet {
     }
 
     public void process(APDU apdu) {
-        byte[] buffer = apdu.getBuffer();
+        if (selectingApplet()) {
+            // ignore if the applet is being selected
+            ISOException.throwIt(ISO7816.SW_NO_ERROR);
+        }
 
-        if ((buffer[ISO7816.OFFSET_CLA] == 0) && (buffer[ISO7816.OFFSET_INS] == (byte) (0xA4))) {
-            return;
+        byte[] buffer = apdu.getBuffer();
+        apdu.setIncomingAndReceive();
+
+        if (buffer[ISO7816.OFFSET_CLA] != CLA) {
+            // throw exception if the CLA byte is not the one expected
+            ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
         }
 
         switch (buffer[ISO7816.OFFSET_INS]) {
@@ -147,23 +154,13 @@ public class NotreProjet extends Applet {
         }
 
         // Maybe a problem on the length of the buffer, see that later
-        sign(buffer);
-        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC]);
-
-    }
-
-    /**
-     * Sign the fingerprint of the message with the private key
-     * buffer : the buffer to sign
-     */
-    private void sign(byte[] buffer) {
         Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
         signature.init(privateKey, Signature.MODE_SIGN);
         byte[] signedMessage = new byte[signature.getLength()];
-        short signatureLength = signature.sign(buffer, (short) ISO7816.OFFSET_CDATA, ISO7816.OFFSET_LC, signedMessage, (short) 0);
+        short signatureLength = signature.sign(buffer, ISO7816.OFFSET_CDATA, ISO7816.OFFSET_LC, signedMessage, (short) 0);
         Util.arrayCopy(signedMessage, (short) 0, buffer, ISO7816.OFFSET_CDATA, signatureLength);
 
-        // Maybe need to free the byte array signedMessage
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, signatureLength);
 
     }
 
