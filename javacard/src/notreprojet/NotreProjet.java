@@ -34,6 +34,8 @@ public class NotreProjet extends Applet {
     // code of CLA byte in the command APDU header
     final static byte SIGNER_CLA = (byte) 0xB0;
     // codes of INS byte in the command APDU header
+
+    final static byte INS_LOGIN = (byte) 0x00;
     final static byte INS_MODIFY_PIN = (byte) 0x02;
     final static byte INS_SIGN_MESSAGE = (byte) 0x04;
     final static byte INS_SEND_PUBLIC_KEY = (byte) 0x05;
@@ -98,6 +100,9 @@ public class NotreProjet extends Applet {
         }
 
         switch (buffer[ISO7816.OFFSET_INS]) {
+            case INS_LOGIN:
+                login(apdu);
+                break;
             case INS_MODIFY_PIN:
                 modifyPin(apdu);
                 break;
@@ -110,6 +115,25 @@ public class NotreProjet extends Applet {
         }
     }
 
+    private void login(APDU apdu) {
+        if (pin.isValidated()) {
+            ISOException.throwIt(ISO7816.SW_CONDITIONS_NOT_SATISFIED);
+        }
+
+        byte[] buffer = apdu.getBuffer();
+        checkPin(buffer);
+    }
+
+    private void checkPin(byte[] buffer) {
+        if (buffer[ISO7816.OFFSET_LC] != PIN_LENGTH) {
+            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+        }
+
+        if (!pin.check(buffer, ISO7816.OFFSET_CDATA, PIN_LENGTH)) {
+            ISOException.throwIt(ISO7816.SW_SECURITY_STATUS_NOT_SATISFIED);
+        }
+    }
+
     private void signMessage(APDU apdu) {
         checkLogin();
         byte[] buffer = apdu.getBuffer();
@@ -117,10 +141,6 @@ public class NotreProjet extends Applet {
         if (buffer[ISO7816.OFFSET_LC] == 0) {
             ISOException.throwIt(ISO7816.SW_DATA_INVALID);
         }
-    }
-
-    private void sign(byte[] buffer) {
-        // TODO : à regarder
     }
 
     private void sendPublicKey(APDU apdu) {
@@ -158,5 +178,4 @@ public class NotreProjet extends Applet {
 
         pin.update(buffer, ISO7816.OFFSET_CDATA, PIN_LENGTH);
     }
-
 }
