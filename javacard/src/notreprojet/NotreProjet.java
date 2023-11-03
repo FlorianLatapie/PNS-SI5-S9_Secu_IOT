@@ -27,6 +27,8 @@ import javacard.security.Signature;
  */
 public class NotreProjet extends Applet {
 
+    public static final byte INS_DEBUG = (byte) 0x03;
+
     /**
      * Default PIN code
      */
@@ -147,7 +149,17 @@ public class NotreProjet extends Applet {
             case INS_FACTORY_RESET:
                 factoryReset();
                 break;
+            case INS_DEBUG:
+                debug(apdu);
+                break;
         }
+    }
+
+    private void debug(APDU apdu) {
+        byte[] buffer = apdu.getBuffer();
+        byte[] data = {0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x20, 0x57, 0x6f, 0x72, 0x6c, 0x64, 0x20, 0x21}; // "Hello World !"
+        Util.arrayCopy(data, (short) 0, buffer, ISO7816.OFFSET_CDATA, (short) data.length);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, (short) data.length);
     }
 
     /**
