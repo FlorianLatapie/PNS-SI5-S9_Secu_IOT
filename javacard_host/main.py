@@ -49,21 +49,38 @@ def get_card_connection() -> Card | None:
 
 def main() -> int:
     print("main")
+
+    print("\n--> connecting to the card ... -------------------------------------------")
     card = get_card_connection()
 
     if not card:
         print("init card failed")
         return 1
+    else:
+        print("init card success")
 
+    # test debug infos
+    print("\n--> test debug infos -----------------------------------------------------")
     card.debug()
 
+    # test login + change pin
+    print("\n--> test login + change pin ----------------------------------------------")
     card.login("1234")
-    #card.login("1111")
-
     card.change_pin("1111")
+    card.login("1111")
 
+    # test factory reset
+    print("\n--> test factory reset ---------------------------------------------------")
+    card.factory_reset()
+    card.login("1234")
 
-    #card.sign("Hello World")
+    # test sign
+    print("\n--> test sign ------------------------------------------------------------")
+    card.sign("please sign me !")
+
+    # test get public key
+    print("\n--> test get public key --------------------------------------------------")
+    card.get_public_key()
 
     return 0
 

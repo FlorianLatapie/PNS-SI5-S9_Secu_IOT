@@ -3,6 +3,7 @@ from smartcard.util import toHexString
 from card_config import *
 from scrape_eftlab import get_sw_description
 
+
 def is_success(sw1, sw2):
     success = (sw1 == 0x90 and sw2 == 0x00)
 
@@ -57,13 +58,14 @@ class APDU:
     def __str__(self):
         return self.get_apdu().__str__()
 
+
 class Card:
     def __init__(self, connection):
         self.connection = connection
 
     def send_command(self, apdu: APDU):
         response, sw1, sw2 = self.connection.transmit(apdu.get_apdu())
-        """
+
         if sw1 == SW1_RETRY_WITH_LE:
             return self.send_command(
                 APDU(
@@ -84,7 +86,6 @@ class Card:
                     receive_length=sw2
                 )
             )
-        """
         return response, sw1, sw2
 
     @command()
@@ -142,15 +143,30 @@ class Card:
         # byte array of the message
         data = [ord(c) for c in message]
         apdu = APDU(APPLET_CLA, INS_SIGN_MESSAGE, 0, 0, data)
-        #print(apdu)
+        # print(apdu)
         response, sw1, sw2 = self.send_command(apdu)
 
-        print("Signature :", response, hex(sw1), hex(sw2))
-
-
         if is_success(sw1, sw2):
-           print("Successfully signed message")
-           print("Signature :", toHexString(response))
-           print("Signature :", bytes(response))
+            print("Successfully signed message")
+            print("Signature :", toHexString(response))
         else:
             print("Error signing message")
+
+    @command()
+    def factory_reset(self):
+        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_FACTORY_RESET, 0, 0))
+
+        if is_success(sw1, sw2):
+            print("Factory reset successful")
+        else:
+            print("Error factory reset")
+
+    @command()
+    def get_public_key(self):
+        apdu = APDU(APPLET_CLA, INS_DEBUG, 0, 0)
+        response, sw1, sw2 = self.send_command(apdu)
+
+        if is_success(sw1, sw2):
+            print("Public key :", toHexString(response))
+        else:
+            print("Error getting public key")
