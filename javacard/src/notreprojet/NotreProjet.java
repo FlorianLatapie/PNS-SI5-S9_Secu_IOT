@@ -229,9 +229,6 @@ public class NotreProjet extends Applet {
             ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
         }
 
-        // Comment maybe useless need more research
-        apdu.setIncomingAndReceive();
-
         pin.update(buffer, ISO7816.OFFSET_CDATA, PIN_LENGTH);
     }
 
