@@ -12,14 +12,13 @@ INS_DEBUG = 0x03
 INS_SIGN_MESSAGE = 0x04
 INS_SEND_PUBLIC_KEY = 0x05
 INS_FACTORY_RESET = 0x06
-INS_GET_RESPONSE = 0xc0  #https://docs.hidglobal.com/crescendo/api/low-level/get-response.htm
 
+INS_GET_RESPONSE = 0xc0  # https://docs.hidglobal.com/crescendo/api/low-level/get-response.htm and https://cardwerk.com/smart-card-standard-iso7816-4-section-7-transmission-interindustry-commands/
 
 # https://www.eftlab.com/knowledge-base/complete-list-of-apdu-responses
 SW1_RETRY_WITH_LE = 0x6c
 SW1_RETRY_WITH_GET_RESPONSE_61 = 0x61
 SW1_RETRY_WITH_GET_RESPONSE_9F = 0x9f
-
 
 
 def get_instruction_name(ins: hex):

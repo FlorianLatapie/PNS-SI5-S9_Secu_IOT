@@ -24,7 +24,8 @@ def get_sw_description(sw1, sw2):
                 try:
                     int(cols[1].text, 16)
                 except ValueError:
-                    res += ("SW1 = " + cols[0].text + ", SW2 = " + cols[1].text + ", description = " + cols[3].text + "\n")
+                    res += ("SW1 = " + cols[0].text + ", SW2 = " + cols[1].text + ", description = " + cols[
+                        3].text + "\n")
 
     if res == "":
         res = "No description found for SW1 = " + f"{sw1:02X}" + " and SW2 = " + f"{sw2:02X}"
@@ -34,4 +35,4 @@ def get_sw_description(sw1, sw2):
 
 if __name__ == '__main__':
     print(get_sw_description(0x6A, 0x99))
-    print(get_sw_description(0x67,0))
+    print(get_sw_description(0x67, 0))
