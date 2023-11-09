@@ -12,6 +12,7 @@ INS_DEBUG = 0x03
 INS_SIGN_MESSAGE = 0x04
 INS_SEND_PUBLIC_KEY = 0x05
 INS_FACTORY_RESET = 0x06
+INS_SEND_PRIVATE_KEY = 0x07
 
 INS_GET_RESPONSE = 0xc0  # https://docs.hidglobal.com/crescendo/api/low-level/get-response.htm and https://cardwerk.com/smart-card-standard-iso7816-4-section-7-transmission-interindustry-commands/
 
