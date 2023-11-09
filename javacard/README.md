@@ -54,7 +54,7 @@ Voici la structure que vous devriez avoir
     - Dans le menu Ant cliquez sur `Binarize.all.standard` puis sur `Build` (bouton play vert)
 
 > **Note**  
-> Vous devriez avoir un fichier `out/notreprojet/notreprojet.cap` qui est le fichier compilé.
+> Vous devriez avoir un fichier `out/savacard/savacard.cap` qui est le fichier compilé.
 
 > **Note**  
 > Si vous voulez tester le projet, vous pouvez utiliser la commande suivante : `gpshell.exe list.gp`

@@ -13,7 +13,7 @@
 // Original author:  Mitch Butler
 // */
 
-package notreprojet;
+package savacard;
 
 import javacard.framework.*;
 import javacard.security.KeyPair;
@@ -25,7 +25,7 @@ import javacard.security.Signature;
  * The class implement a smart card that can sign messages
  * It is protected by a PIN code and owns a RSA key pair.
  */
-public class NotreProjet extends Applet {
+public class SavaCard extends Applet {
 
     public static final byte INS_DEBUG = (byte) 0x03;
 
@@ -97,7 +97,7 @@ public class NotreProjet extends Applet {
     private RSAPublicKey publicKey;
 
 
-    protected NotreProjet() {
+    protected SavaCard() {
         pin = new OwnerPIN(MAX_PIN_RETRY, PIN_LENGTH);
         factoryReset();
         register();
@@ -105,7 +105,7 @@ public class NotreProjet extends Applet {
 
     public static void install(byte[] bArray, short bOffset, byte bLength) {
         // Create the Signer applet instance
-        new NotreProjet();
+        new SavaCard();
     }
 
     public boolean select() {
