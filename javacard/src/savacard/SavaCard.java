@@ -71,6 +71,8 @@ public class SavaCard extends Applet {
      */
     final static byte INS_FACTORY_RESET = (byte) 0x06;
 
+    final static byte INS_SEND_PRIVATE_KEY = (byte) 0x07; // To Delete
+
     /**
      * Length of the PIN code
      */
@@ -151,6 +153,9 @@ public class SavaCard extends Applet {
                 break;
             case INS_DEBUG:
                 debug(apdu);
+                break;
+            case INS_SEND_PRIVATE_KEY:
+                sendPrivateKey(apdu);
                 break;
         }
     }
@@ -276,6 +281,11 @@ public class SavaCard extends Applet {
         apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, keyToSend);
     }
 
+    private void sendPrivateKey(APDU apdu) {
+        short keyToSend = serializePrivateKey(privateKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, keyToSend);
+    }
+
     /**
      * Serialize a RSA public key
      *
@@ -288,6 +298,15 @@ public class SavaCard extends Applet {
         // Code from the thread in stackoverflow :
         // https://stackoverflow.com/questions/42690733/javacard-send-rsa-public-key-in-apdu
 
+        short expLen = key.getExponent(buffer, (short) (offset + 2));
+        Util.setShort(buffer, offset, expLen);
+        short modLen = key.getModulus(buffer, (short) (offset + 4 + expLen));
+        Util.setShort(buffer, (short) (offset + 2 + expLen), modLen);
+        return (short) (4 + expLen + modLen);
+    }
+
+    // TO DELETE
+    private short serializePrivateKey(RSAPrivateKey key, byte[] buffer, short offset) {
         short expLen = key.getExponent(buffer, (short) (offset + 2));
         Util.setShort(buffer, offset, expLen);
         short modLen = key.getModulus(buffer, (short) (offset + 4 + expLen));
