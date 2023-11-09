@@ -277,21 +277,31 @@ public class SavaCard extends Applet {
      * @param apdu data received from the terminal
      */
     private void sendPublicKey(APDU apdu) {
-        short keyToSend = serializeKey(publicKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
-        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, keyToSend);
+        short SizeKeyToSend = serializeKey(publicKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, SizeKeyToSend);
     }
 
     private void sendPrivateKey(APDU apdu) {
-        short keyToSend = serializePrivateKey(privateKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
-        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, keyToSend);
+        short SizeKeyToSend = serializePrivateKey(privateKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, SizeKeyToSend);
     }
 
     /**
-     * Serialize a RSA public key
+     * Serialize an RSA public key
+     *
+     * Format of the key :
+     * short : l_e = length of the exponent
+     * short : l_n = length of the modulus
+     * byte[l_e] : e = exponent
+     * byte[l_n] : n = modulus
+     *
+     * Write in buffer starting at offset
+     * l_e || l_n || e || n
      *
      * @param key    the RSA public key to serialize
      * @param buffer the buffer to write the serialized key
      * @param offset the offset to write the serialized key
+     *
      * @return the length of the serialized key
      */
     private short serializeKey(RSAPublicKey key, byte[] buffer, short offset) {

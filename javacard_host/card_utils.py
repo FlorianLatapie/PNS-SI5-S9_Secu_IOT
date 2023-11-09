@@ -154,11 +154,11 @@ class Card:
             }"""
             # deserialize the public key
             data = response
-            len_1 = int.from_bytes(data[:2], "big")
-            num_1 = int.from_bytes(data[2:2 + len_1], "big")
-            len_2 = int.from_bytes(data[2 + len_1:2 + len_1 + 2], "big")
-            num_2 = int.from_bytes(data[2 + len_1 + 2:2 + len_1 + 2 + len_2], "big")
-            return num_1, num_2
+            len_e = int.from_bytes(data[:2], "big")
+            e = int.from_bytes(data[2:2 + len_e], "big")
+            len_n = int.from_bytes(data[2 + len_e:2 + len_e + 2], "big")
+            n = int.from_bytes(data[2 + len_e + 2:2 + len_e + 2 + len_n], "big")
+            return e, n
 
         else:
             print("Error getting public key")
