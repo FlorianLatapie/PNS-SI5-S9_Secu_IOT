@@ -16,10 +16,7 @@
 package savacard;
 
 import javacard.framework.*;
-import javacard.security.KeyPair;
-import javacard.security.RSAPrivateKey;
-import javacard.security.RSAPublicKey;
-import javacard.security.Signature;
+import javacard.security.*;
 
 /**
  * The class implement a smart card that can sign messages
@@ -91,7 +88,7 @@ public class SavaCard extends Applet {
     /**
      * Private key of the key pair
      */
-    private RSAPrivateKey privateKey;
+    private RSAPrivateCrtKey privateKey;
 
     /**
      * Public key of the key pair
@@ -243,7 +240,7 @@ public class SavaCard extends Applet {
     private void generateRSAKeys() {
         KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA, KEY_BITS);
         keyPair.genKeyPair();
-        privateKey = (RSAPrivateKey) keyPair.getPrivate();
+        privateKey = (RSAPrivateCrtKey) keyPair.getPrivate();
         publicKey = (RSAPublicKey) keyPair.getPublic();
     }
 
@@ -316,11 +313,11 @@ public class SavaCard extends Applet {
     }
 
     // TO DELETE
-    private short serializePrivateKey(RSAPrivateKey key, byte[] buffer, short offset) {
-        short expLen = key.getExponent(buffer, (short) (offset + 2));
-        Util.setShort(buffer, offset, expLen);
-        short modLen = key.getModulus(buffer, (short) (offset + 4 + expLen));
-        Util.setShort(buffer, (short) (offset + 2 + expLen), modLen);
-        return (short) (4 + expLen + modLen);
+    private short serializePrivateKey(RSAPrivateCrtKey key, byte[] buffer, short offset) {
+        short pLen = key.getP(buffer, (short) (offset + 2));
+        Util.setShort(buffer, offset, pLen);
+        short qLen = key.getQ(buffer, (short) (offset + 4 + pLen));
+        Util.setShort(buffer, (short) (offset + 2 + pLen), qLen);
+        return (short) (4 + pLen + qLen);
     }
 }
