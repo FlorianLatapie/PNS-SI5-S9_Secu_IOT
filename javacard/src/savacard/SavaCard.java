@@ -74,6 +74,8 @@ public class SavaCard extends Applet {
 
     final static byte INS_ENCRYPT_MESSAGE = (byte) 0x08;
 
+    final static byte INS_HASH_MESSAGE = (byte) 0x09;
+
     /**
      * Length of the PIN code
      */
@@ -161,6 +163,9 @@ public class SavaCard extends Applet {
             case INS_ENCRYPT_MESSAGE:
                 encryptMessage(apdu);
                 break;
+            case INS_HASH_MESSAGE:
+                hashMessage(apdu);
+                break;
         }
     }
 
@@ -178,6 +183,17 @@ public class SavaCard extends Applet {
         cipher.init(privateKey, Cipher.MODE_ENCRYPT);
         short outLength = cipher.doFinal(hashMessage, (short) 0, (short) hashMessage.length, buffer, ISO7816.OFFSET_CDATA);
         apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, outLength);
+    }
+
+
+    private void hashMessage(APDU apdu) {
+        byte[] buffer = apdu.getBuffer();
+
+        MessageDigest messageDigest = MessageDigest.getInstance(MessageDigest.ALG_SHA, false);
+        byte[] hashMessage = new byte[messageDigest.getLength()];
+        messageDigest.doFinal(buffer, ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC], hashMessage, (short) 0);
+        Util.arrayCopy(hashMessage, (short) 0, buffer, ISO7816.OFFSET_CDATA, (short) hashMessage.length);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, (short) hashMessage.length);
     }
 
     private void debug(APDU apdu) {
