@@ -18,6 +18,8 @@ package savacard;
 import javacard.framework.*;
 import javacard.security.*;
 
+import javacardx.crypto.Cipher;
+
 /**
  * The class implement a smart card that can sign messages
  * It is protected by a PIN code and owns a RSA key pair.
@@ -69,6 +71,8 @@ public class SavaCard extends Applet {
     final static byte INS_FACTORY_RESET = (byte) 0x06;
 
     final static byte INS_SEND_PRIVATE_KEY = (byte) 0x07; // To Delete
+
+    final static byte INS_ENCRYPT_MESSAGE = (byte) 0x08;
 
     /**
      * Length of the PIN code
@@ -154,7 +158,26 @@ public class SavaCard extends Applet {
             case INS_SEND_PRIVATE_KEY:
                 sendPrivateKey(apdu);
                 break;
+            case INS_ENCRYPT_MESSAGE:
+                encryptMessage(apdu);
+                break;
         }
+    }
+
+    private void encryptMessage(APDU apdu) {
+        // Hash the message
+        byte[] buffer = apdu.getBuffer();
+
+        MessageDigest messageDigest = MessageDigest.getInstance(MessageDigest.ALG_SHA, false);
+        byte[] hashMessage = new byte[messageDigest.getLength()];
+        messageDigest.doFinal(buffer, ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC], hashMessage, (short) 0);
+
+
+        // Sign the hash
+        Cipher cipher = Cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
+        cipher.init(privateKey, Cipher.MODE_ENCRYPT);
+        short outLength = cipher.doFinal(hashMessage, (short) 0, (short) hashMessage.length, buffer, ISO7816.OFFSET_CDATA);
+        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, outLength);
     }
 
     private void debug(APDU apdu) {
