@@ -157,43 +157,7 @@ public class SavaCard extends Applet {
             case INS_DEBUG:
                 debug(apdu);
                 break;
-            case INS_SEND_PRIVATE_KEY:
-                sendPrivateKey(apdu);
-                break;
-            case INS_ENCRYPT_MESSAGE:
-                encryptMessage(apdu);
-                break;
-            case INS_HASH_MESSAGE:
-                hashMessage(apdu);
-                break;
         }
-    }
-
-    private void encryptMessage(APDU apdu) {
-        // Hash the message
-        byte[] buffer = apdu.getBuffer();
-
-        MessageDigest messageDigest = MessageDigest.getInstance(MessageDigest.ALG_SHA, false);
-        byte[] hashMessage = new byte[messageDigest.getLength()];
-        messageDigest.doFinal(buffer, ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC], hashMessage, (short) 0);
-
-
-        // Sign the hash
-        Cipher cipher = Cipher.getInstance(Cipher.ALG_RSA_PKCS1, false);
-        cipher.init(privateKey, Cipher.MODE_ENCRYPT);
-        short outLength = cipher.doFinal(hashMessage, (short) 0, (short) hashMessage.length, buffer, ISO7816.OFFSET_CDATA);
-        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, outLength);
-    }
-
-
-    private void hashMessage(APDU apdu) {
-        byte[] buffer = apdu.getBuffer();
-
-        MessageDigest messageDigest = MessageDigest.getInstance(MessageDigest.ALG_SHA, false);
-        byte[] hashMessage = new byte[messageDigest.getLength()];
-        messageDigest.doFinal(buffer, ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC], hashMessage, (short) 0);
-        Util.arrayCopy(hashMessage, (short) 0, buffer, ISO7816.OFFSET_CDATA, (short) hashMessage.length);
-        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, (short) hashMessage.length);
     }
 
     private void debug(APDU apdu) {
@@ -300,7 +264,7 @@ public class SavaCard extends Applet {
         Signature signature = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1, false);
         signature.init(privateKey, Signature.MODE_SIGN);
         byte[] signedMessage = new byte[signature.getLength()];
-        short signatureLength = signature.sign(buffer, ISO7816.OFFSET_CDATA, ISO7816.OFFSET_LC, signedMessage, (short) 0);
+        short signatureLength = signature.sign(buffer, ISO7816.OFFSET_CDATA, buffer[ISO7816.OFFSET_LC], signedMessage, (short) 0);
         Util.arrayCopy(signedMessage, (short) 0, buffer, ISO7816.OFFSET_CDATA, signatureLength);
 
         apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, signatureLength);
@@ -314,11 +278,6 @@ public class SavaCard extends Applet {
      */
     private void sendPublicKey(APDU apdu) {
         short SizeKeyToSend = serializeKey(publicKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
-        apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, SizeKeyToSend);
-    }
-
-    private void sendPrivateKey(APDU apdu) {
-        short SizeKeyToSend = serializePrivateKey(privateKey, apdu.getBuffer(), ISO7816.OFFSET_CDATA);
         apdu.setOutgoingAndSend(ISO7816.OFFSET_CDATA, SizeKeyToSend);
     }
 
@@ -349,14 +308,5 @@ public class SavaCard extends Applet {
         short modLen = key.getModulus(buffer, (short) (offset + 4 + expLen));
         Util.setShort(buffer, (short) (offset + 2 + expLen), modLen);
         return (short) (4 + expLen + modLen);
-    }
-
-    // TO DELETE
-    private short serializePrivateKey(RSAPrivateCrtKey key, byte[] buffer, short offset) {
-        short pLen = key.getP(buffer, (short) (offset + 2));
-        Util.setShort(buffer, offset, pLen);
-        short qLen = key.getQ(buffer, (short) (offset + 4 + pLen));
-        Util.setShort(buffer, (short) (offset + 2 + pLen), qLen);
-        return (short) (4 + pLen + qLen);
     }
 }
