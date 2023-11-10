@@ -261,7 +261,7 @@ public class SavaCard extends Applet {
      * Generate a RSA key pair used to sign messages
      */
     private void generateRSAKeys() {
-        KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA, KEY_BITS);
+        KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA_CRT, KEY_BITS);
         keyPair.genKeyPair();
         privateKey = (RSAPrivateCrtKey) keyPair.getPrivate();
         publicKey = (RSAPublicKey) keyPair.getPublic();
@@ -316,7 +316,7 @@ public class SavaCard extends Applet {
      * byte[l_n] : n = modulus
      *
      * Write in buffer starting at offset
-     * l_e || l_n || e || n
+     * l_e || e || l_n || n
      *
      * @param key    the RSA public key to serialize
      * @param buffer the buffer to write the serialized key

@@ -41,6 +41,14 @@ class APDU:
         return self.get_apdu().__str__()
 
 
+def deserialize_e_n(data):
+    len_e = int.from_bytes(data[:2], "big")
+    e = int.from_bytes(data[2:2 + len_e], "big")
+    len_n = int.from_bytes(data[2 + len_e:2 + len_e + 2], "big")
+    n = int.from_bytes(data[2 + len_e + 2:2 + len_e + 2 + len_n], "big")
+    return e, n
+
+
 def command(auth=False):
     def decorator(func):
         func.is_command = True
@@ -115,22 +123,26 @@ class Card:
         return success
 
     @command(auth=True)
-    def sign(self, message: str) -> bytes:
-        # encode utf-8 message to bytes
-        message_encoded = message.encode("utf-8")
-        data =[int(c) for c in message_encoded]
+    def sign(self, message: str, encoding:str) -> bytes:
+        message_encoded = message.encode(encoding)
+        data = [c for c in message_encoded]
 
         response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_SIGN_MESSAGE, 0, 0, data))
 
-        if is_success(sw1, sw2):
-            print("Successfully signed message")
-            print("Signature :", toHexString(response))
-            print("Signature :", bytes(response))
-        else:
-            print("Error signing message")
+        print("Successfully signed message") if is_success(sw1, sw2) else print("Error signing message")
 
         return response
 
+    @command(auth=True)
+    def sign2(self, message: str, encoding: str) -> bytes:
+        message_encoded = message.encode(encoding)
+        data = [c for c in message_encoded]
+
+        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, 0x08, 0, 0, data))
+
+        print("Successfully signed message") if is_success(sw1, sw2) else print("Error signing message")
+
+        return response
     @command()
     def factory_reset(self) -> bool:
         response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_FACTORY_RESET, 0, 0))
@@ -144,26 +156,10 @@ class Card:
         response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_SEND_PUBLIC_KEY, 0, 0))
 
         if is_success(sw1, sw2):
-            """java input code : 
-             private short serializeKey(RSAPublicKey key, byte[] buffer, short offset) {
-                short expLen = key.getExponent(buffer, (short) (offset + 2));
-                Util.setShort(buffer, offset, expLen);
-                short modLen = key.getModulus(buffer, (short) (offset + 4 + expLen));
-                Util.setShort(buffer, (short) (offset + 2 + expLen), modLen);
-                return (short) (4 + expLen + modLen);
-            }"""
-            # deserialize the public key
-            data = response
-            len_e = int.from_bytes(data[:2], "big")
-            e = int.from_bytes(data[2:2 + len_e], "big")
-            len_n = int.from_bytes(data[2 + len_e:2 + len_e + 2], "big")
-            n = int.from_bytes(data[2 + len_e + 2:2 + len_e + 2 + len_n], "big")
-            return e, n
-
+            print("Successfully got public key")
+            return deserialize_e_n(response)
         else:
             print("Error getting public key")
-
-        return response
 
     @command()
     def get_private_key(self):
@@ -171,9 +167,7 @@ class Card:
 
         if is_success(sw1, sw2):
             print("Successfully got private key")
-            print("response :", toHexString(response))
-            print("response :", bytes(response))
-            return response
+            return deserialize_e_n(response)
         else:
             print("Error getting private key")
 
