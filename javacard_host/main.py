@@ -64,7 +64,7 @@ def main() -> int:
     # test sign
     print("\n--> test sign ------------------------------------------------------------")
     encoding = "utf-8"
-    text = "please sign me"
+    text = "please sign eee !"
     signature = card.sign(text, encoding)
     signature2 = card.sign2(text, encoding)
     # test verify
@@ -73,6 +73,10 @@ def main() -> int:
     digest = SHA1.new()
     digest.update(text.encode(encoding))
     crypto_signature = pkcs1_15.new(crypto_private_key).sign(digest)
+
+    sha_card = card.sha1(text, encoding)
+    print("sha card", binascii.hexlify(bytes(sha_card)))
+    print("sha lib ", binascii.hexlify(bytes(digest.digest())))
 
     import_rsa_signature = rsa.sign(text.encode(encoding), import_rsa_private_key, "SHA-1")
 

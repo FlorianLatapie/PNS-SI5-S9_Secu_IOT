@@ -143,6 +143,17 @@ class Card:
         print("Successfully signed message") if is_success(sw1, sw2) else print("Error signing message")
 
         return response
+
+
+    @command(auth=True)
+    def sha1(self, message: str, encoding: str) -> bytes:
+        message_encoded = message.encode(encoding)
+        data = [c for c in message_encoded]
+
+        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, 0x09, 0, 0, data))
+        print("Successfully hashed message") if is_success(sw1, sw2) else print("Error hashing message")
+        return response
+
     @command()
     def factory_reset(self) -> bool:
         response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_FACTORY_RESET, 0, 0))
