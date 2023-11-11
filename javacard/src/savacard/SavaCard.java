@@ -236,6 +236,7 @@ public class SavaCard extends Applet {
      */
     private void signMessage(APDU apdu) {
         checkLogin();
+        apdu.receiveBytes(ISO7816.OFFSET_CDATA);
         byte[] buffer = apdu.getBuffer();
 
         if (buffer[ISO7816.OFFSET_LC] == 0) {
