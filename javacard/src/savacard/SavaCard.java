@@ -157,6 +157,8 @@ public class SavaCard extends Applet {
             case INS_DEBUG:
                 debug(apdu);
                 break;
+            default:
+                ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
         }
     }
 
