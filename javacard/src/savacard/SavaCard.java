@@ -1,9 +1,10 @@
 package savacard;
 
 import javacard.framework.*;
-import javacard.security.*;
-
-import javacardx.crypto.Cipher;
+import javacard.security.KeyPair;
+import javacard.security.RSAPrivateCrtKey;
+import javacard.security.RSAPublicKey;
+import javacard.security.Signature;
 
 /**
  * The class implement a smart card that can sign messages
@@ -54,12 +55,6 @@ public class SavaCard extends Applet {
      * INS byte of the factory reset command
      */
     final static byte INS_FACTORY_RESET = (byte) 0x06;
-
-    final static byte INS_SEND_PRIVATE_KEY = (byte) 0x07; // To Delete
-
-    final static byte INS_ENCRYPT_MESSAGE = (byte) 0x08;
-
-    final static byte INS_HASH_MESSAGE = (byte) 0x09;
 
     /**
      * Length of the PIN code
