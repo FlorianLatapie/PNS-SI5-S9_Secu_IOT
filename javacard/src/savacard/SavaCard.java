@@ -1,18 +1,3 @@
-/*
- * Copyright 2005 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
-
-// /*
-// Workfile:@(#)HelloWorld.java	1.7
-// Version:1.7
-// Date:01/03/06
-//
-// Archive:  /Products/Europa/samples/com/sun/javacard/samples/HelloWorld/HelloWorld.java
-// Modified:01/03/06 19:01:06
-// Original author:  Mitch Butler
-// */
-
 package savacard;
 
 import javacard.framework.*;
