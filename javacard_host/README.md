@@ -9,6 +9,8 @@
 pip install -r requirements.txt
 ```
 
+- Avoir une carte JavaCard connectée à l'ordinateur avec l'applet du projet installée.
+
 ## Lancement
 
 ```bash
@@ -17,16 +19,22 @@ python main.py # ou python3 main.py
 
 ## Utilisation
 
-Une fonction `main` est disponible dans le fichier `main.py`. Elle permet de tester les différentes fonctionnalités de la carte.
+Une fonction `main` est disponible dans le fichier `main.py`. Le script agit comme un terminal pour communiquer avec la carte. Ce script permet de tester les différentes fonctionnalités offertes par la carte.
 
-- En décommentant `test_everything()` dans le fichier `main.py`, on peut tester toutes les fonctionnalités de la carte d'un coup.
-- Sinon vous pouvez utiliser le terminal interactif pour tester les fonctionnalités une par une. (fonction `repl()`)
+- Vous pouvez utiliser le terminal en mode interactif pour tester les fonctionnalités une par une en excutant simplement le script.
+- Sinon, il est possible d'exécuter tous les tests ,en décommentant `test_everything()` et commentant `repl()` dans le fichier `main.py`.
+
+## Limitations
+
+Il n'est possible de signer que des messages de taille inférieure à 127 octets. Cette limitation provient de l'implémentation de l'instruction de signature sur la carte.
+
+Afin de palier à ce problème, il existe un workaround qui n'est pas activé pour une raison simple que nous allons détailler. Il existe une fonction qui permet de hasher en SHA-1 le message avant de l'envoyer à la carte pour signature. Cela permet donc d'avoir un message de 20 bytes, donc inférieur à la limitation sur la taille. En revanche la signature correspond au hash du hash du message. Ce qui ne correspond pas à ce que nous voulons, car nous voulons avoir la signature sur le hash du message.
 
 ### Exemple d'utilisation
 
-![Alt text](image.png)
+Ensemble des commandes disponibles dans le script Python.
 
-Les commandes utilisant l'ordinateur font appel à la carte pour faire les opérations.
+![Alt text](image.png)
 
 #### Login
 

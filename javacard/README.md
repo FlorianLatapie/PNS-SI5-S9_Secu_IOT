@@ -1,4 +1,17 @@
-# javacard
+# Javacard
+
+## Limitations
+
+La carte ne peut signer que des messages de taille inférieure à 127 octets. Nous ne comprenons pas d'où vient exactement cette limitation puisqu'un APDU peut normalement transporter dans la partie `data` jusqu'à 255 octets.
+
+Nous avons ensuite regardé comment modifier le code pour accepter des messages de tailles plus longs que 255 octets. Nous avons vu qu'il faillait mettre en place de l'APDU chaining. Le processus consiste à avoir une instruction spécifique sur la carte qui permet de récupérer des données et de les concaténer aux données déjà reçues via cette instruction.
+Le terminal n'a qu'à couper la donnée qu'il veut signer en blocs de taille X (255) et envoyer séquentiellement chaque bloc. Une fois toutes les données transmises, le terminal appelle l'instruction de signature. La carte va signer l'ensemble des données reçues précédemment durant la phase de chaining. Finalement la carte vide son buffer de chaining après signature.
+
+Cependant, nous n'avons pas réussi à mettre en place cette technique. Comme le but du projet ne portait pas vraiment sur cette partie, nous avons donc décidé de laisser la limitation de la taille des messages à 127 octets.
+
+### Ressources
+
+- [How to send and receive data more than 255 bytes? - Oracle Forums](https://forums.oracle.com/ords/apexds/post/how-to-send-and-receive-data-more-than-255-bytes-6131)
 
 ## Comment installer pour développer
 
@@ -68,5 +81,3 @@ Voici la structure que vous devriez avoir
 ```
 
   - La dernière ligne de l'output devrait être : `release_contextcommand time: 0 ms`
-
-
