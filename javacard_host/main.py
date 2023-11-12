@@ -50,9 +50,6 @@ def test_everything() -> int:
 
     # test get public key
     print("\n--> test get public key --------------------------------------------------")
-    public_exponent, public_modulus = card.get_public_key()
-    public_key = rsa.PublicKey(public_modulus, public_exponent)
-
     save_public_key(card, "public_key")
     public_key_from_file = get_public_key_from_file("public_key.pem")
 
@@ -107,5 +104,5 @@ def repl() -> int:
 
 
 if __name__ == '__main__':
-    #test_everything()
-    repl()
+    test_everything()
+    #repl()
