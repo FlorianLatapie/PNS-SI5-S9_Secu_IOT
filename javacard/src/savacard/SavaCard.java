@@ -109,8 +109,15 @@ public class SavaCard extends Applet {
         }
 
         byte[] buffer = apdu.getBuffer();
+
+        byte bytesLeft = (byte) (buffer[ISO7816.OFFSET_LC] & 0xFF);
         // Ensure all the incoming data has been received
-        apdu.setIncomingAndReceive();
+        short readCount = apdu.setIncomingAndReceive();
+        while ( bytesLeft > 0){
+            // process bytes in buffer[5] to buffer[readCount+4];
+            bytesLeft -= (byte) readCount;
+            readCount = apdu.receiveBytes ( ISO7816.OFFSET_CDATA );
+        }
 
         if (buffer[ISO7816.OFFSET_CLA] != CLA) {
             // throw exception if the CLA byte is not the one expected
@@ -236,7 +243,6 @@ public class SavaCard extends Applet {
      */
     private void signMessage(APDU apdu) {
         checkLogin();
-        apdu.receiveBytes(ISO7816.OFFSET_CDATA);
         byte[] buffer = apdu.getBuffer();
 
         if (buffer[ISO7816.OFFSET_LC] == 0) {
