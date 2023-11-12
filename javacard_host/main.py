@@ -88,21 +88,22 @@ def repl() -> int:
         elif user_input == "help":
             help(card)
         else:
-
-            if function in card.commands():
-                res = card.commands()[function](*args)
-                if res is not None:
-                    print("Raw response:", res)
-            elif function in get_computer_commands():
-                res = get_computer_commands()[function](card, *args)
-                if res is not None:
-                    print("Raw response:", res)
-            else:
-                print("Command not found")
-
+            try:
+                if function in card.commands():
+                    res = card.commands()[function](*args)
+                    if res is not None:
+                        print("Raw response:", res)
+                elif function in get_computer_commands():
+                    res = get_computer_commands()[function](card, *args)
+                    if res is not None:
+                        print("Raw response:", res)
+                else:
+                    print("Command not found")
+            except Exception as e:
+                print("Error:", e)
     return 0
 
 
 if __name__ == '__main__':
-    test_everything()
-    #repl()
+    #test_everything()
+    repl()

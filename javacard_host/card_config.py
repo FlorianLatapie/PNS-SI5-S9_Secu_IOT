@@ -20,10 +20,3 @@ INS_GET_RESPONSE = 0xc0  # https://docs.hidglobal.com/crescendo/api/low-level/ge
 SW1_RETRY_WITH_LE = 0x6c
 SW1_RETRY_WITH_GET_RESPONSE_61 = 0x61
 SW1_RETRY_WITH_GET_RESPONSE_9F = 0x9f
-
-
-def get_instruction_name(ins: hex):
-    results = [key for key, val in globals().items() if val == ins and key.startswith("INS_")]
-    if results:
-        return results[0][4:]
-    return f"{ins:02X}"

@@ -40,7 +40,7 @@ def store_signature(card: Card):
     filename = input("Enter filename (no extension): ")
     message = input("Enter message: ")
 
-    signature = card.sign(message, TEXT_ENCODING)
+    signature = card.sign(message)
     with open(filename+".sig", "wb") as f:
         f.write(bytes(signature))
         print("Signature stored to", filename+".sig")

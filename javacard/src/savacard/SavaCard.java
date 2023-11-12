@@ -11,9 +11,6 @@ import javacard.security.Signature;
  * It is protected by a PIN code and owns a RSA key pair.
  */
 public class SavaCard extends Applet {
-
-    public static final byte INS_DEBUG = (byte) 0x03;
-
     /**
      * Default PIN code
      */
@@ -40,6 +37,11 @@ public class SavaCard extends Applet {
      * INS byte of the modify pin command
      */
     final static byte INS_MODIFY_PIN = (byte) 0x02;
+
+    /**
+     * INS byte of the debug command
+     */
+    public static final byte INS_DEBUG = (byte) 0x03;
 
     /**
      * INS byte of the sign message command

@@ -1,5 +1,11 @@
 # Projet SAVAcard
 
+Projet réalisé par :
+
+- Quentin Dubois
+- Vinh Faucher
+- Florian Latapie
+
 ## Description
 
 Nom : Secure + Java + Javacard = SAVAcard
@@ -21,14 +27,19 @@ Ce projet comprend également l'écriture d'une application Python agissant comm
 
 ## APDUs
 
-| `INS` | Description                                        | Entrée    | Sortie           | Authentifié |
-| ----- | -------------------------------------------------- | --------- | ---------------- | ----------- |
-| `01`  | Authentification de l'utilisateur à la carte       | PIN (4 o) |                  |             |
-| `02`  | Modification le code PIN sur le carte              | PIN (4 o) |                  | Oui         |
-| `03`  | DEBUG : la carte envoie le message "Hello World !" |           |                  |             |
-| `04`  | Signature du message par la carte                  | Message   | Signature SHA-1 (64 o) | Oui         |
-| `05`  | Envoi de la clé publique de la carte              |           | Clé (64 o)       |             |
-| `06`  | Réinitialise la carte en état d'usine              |           |                  |             |
+| # d'instruction | Nom d'instruction   | Description                                        | Entrée         | Sortie                         | Authentifié |
+| --------------- | ------------------- | -------------------------------------------------- | -------------- | ------------------------------ | ----------- |
+| `0x01`          | INS_LOGIN           | Authentification de l'utilisateur à la carte       | PIN (4 octets) |                                |             |
+| `0x02`          | INS_MODIFY_PIN      | Modification le code PIN sur le carte              | PIN (4 octets) |                                | Oui         |
+| `0x03`          | INS_DEBUG           | DEBUG : la carte envoie le message "Hello World !" |                | "Hello World !" en hexadécimal |             |
+| `0x04`          | INS_SIGN_MESSAGE    | Signature du message par la carte                  | Message        | Signature SHA-1 (64 octets)    | Oui         |
+| `0x05`          | INS_SEND_PUBLIC_KEY | Envoi de la clé publique de la carte               |                | Clé (64 octets)                |             |
+| `0x06`          | INS_FACTORY_RESET   | Réinitialise la carte en état d'usine              |                |                                |             |
+
+Numéros d'instruction sont notés dans les fichiers suivants
+
+- Python : [`javacard_host/card_config.py` Ligne 9](javacard_host/card_config.py)
+- Java : [`javacard/src/javacard/SavaCard.java` Ligne 34](javacard/src/savacard/SavaCard.java)
 
 ### Format de sérialisation de la clé publique
 
@@ -38,6 +49,11 @@ Ce projet comprend également l'écriture d'une application Python agissant comm
 | 2           | `len_e` | Exposant public (`e`)                      |
 | 2 + `len_e` | 2       | Longueur du module en octets (`len_n`)     |
 | 4 + `len_e` | `len_n` | Module (`n`)                               |
+
+Voir code :
+
+- Java (sérialisation) : [`javacard/src/javacard/SavaCard.java` Ligne 284](javacard/src/savacard/SavaCard.java)
+- Python (désérialisation) : [`javacard_host/card_utils.py` Ligne 43](javacard_host/card_utils.py)
 
 ## Tests
 
