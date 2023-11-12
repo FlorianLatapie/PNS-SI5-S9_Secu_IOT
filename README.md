@@ -14,7 +14,7 @@ Le sujet complet du projet est disponible, ici : [Sujet](sujet/IoT-Security-Lab3
 
 ## Les deux projets
 
-Ce projet contient deux sous-projets
+Ce projet contient deux sous-projets avec leurs propres README :
 
 - Le projet `Server` ou `Card` dans le dossier [`javacard`](javacard/README.md)
 - Le projet `Client` ou `Terminal app` dans le dossier [`python_client`](python_client/README.md)
@@ -31,7 +31,7 @@ Ce projet comprend également l'écriture d'une application Python agissant comm
 | --------------- | ------------------- | -------------------------------------------------- | -------------- | ------------------------------ | ----------- |
 | `0x01`          | INS_LOGIN           | Authentification de l'utilisateur à la carte       | PIN (4 octets) |                                |             |
 | `0x02`          | INS_MODIFY_PIN      | Modification le code PIN sur le carte              | PIN (4 octets) |                                | Oui         |
-| `0x03`          | INS_DEBUG           | DEBUG : la carte envoie le message "Hello World !" |                | "Hello World !" en hexadécimal |             |
+| `0x03`          | INS_DEBUG           | DEBUG : la carte envoie le message "Hello World !" |                | "Hello World !" (UTF-8) |             |
 | `0x04`          | INS_SIGN_MESSAGE    | Signature du message par la carte                  | Message        | Signature SHA-1 (64 octets)    | Oui         |
 | `0x05`          | INS_SEND_PUBLIC_KEY | Envoi de la clé publique de la carte               |                | Clé (64 octets)                |             |
 | `0x06`          | INS_FACTORY_RESET   | Réinitialise la carte en état d'usine              |                |                                |             |
@@ -63,7 +63,7 @@ Nous avons tout d'abord créé un APDU qui renvoyait simplement un `90 00` si la
 
 ## APDU envoyant des données
 
-Nous avons ensuite essayé de complexifier le premier APDU et de lui faire envoyer un message générique (`Hello World !`). Celui-ci est toujours disponible à l'instruction `03`. Il nous permit de pouvoir tester que nous pouvions bien recevoir des données envoyées par la carte, par le terminal Python.
+Nous avons ensuite essayé de complexifier le premier APDU et de lui faire envoyer un message générique (`Hello World !`). Celui-ci est toujours disponible à l'instruction `0x03`. Il nous permit de pouvoir tester que nous pouvions bien recevoir des données envoyées par la carte, par le terminal Python.
 
 ## Signature
 
