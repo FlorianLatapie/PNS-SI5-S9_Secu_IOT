@@ -17,7 +17,7 @@ Le sujet complet du projet est disponible, ici : [Sujet](sujet/IoT-Security-Lab3
 Ce projet contient deux sous-projets
 
 - Le projet `Server` ou `Card` dans le dossier [`javacard`](javacard/README.md)
-- Le projet `Client` ou `Terminal app` dans le dossier [`javacard_host`](javacard_host/README.md)
+- Le projet `Client` ou `Terminal app` dans le dossier [`python_client`](python_client/README.md)
 
 ## Introduction
 
@@ -38,7 +38,7 @@ Ce projet comprend également l'écriture d'une application Python agissant comm
 
 Numéros d'instruction sont notés dans les fichiers suivants
 
-- Python : [`javacard_host/card_config.py` Ligne 9](javacard_host/card_config.py)
+- Python : [`python_client/card_config.py` Ligne 9](python_client/card_config.py)
 - Java : [`javacard/src/javacard/SavaCard.java` Ligne 34](javacard/src/savacard/SavaCard.java)
 
 ### Format de sérialisation de la clé publique
@@ -53,7 +53,7 @@ Numéros d'instruction sont notés dans les fichiers suivants
 Voir code :
 
 - Java (sérialisation) : [`javacard/src/javacard/SavaCard.java` Ligne 284](javacard/src/savacard/SavaCard.java)
-- Python (désérialisation) : [`javacard_host/card_utils.py` Ligne 43](javacard_host/card_utils.py)
+- Python (désérialisation) : [`python_client/card_utils.py` Ligne 43](python_client/card_utils.py)
 
 ## Tests
 
