@@ -4,6 +4,8 @@
 
 Nom : Secure + Java + Javacard = SAVAcard
 
+Le sujet complet du projet est disponible, ici : [Sujet](sujet/IoT-Security-Lab3-ProjectDescription.pdf)
+
 ## Les deux projets
 
 Ce projet contient deux sous-projets
