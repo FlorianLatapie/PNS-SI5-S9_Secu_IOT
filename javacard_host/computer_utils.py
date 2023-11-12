@@ -27,8 +27,7 @@ def rsa_verify_bool(message: bytes, signature: bytes, public_key: rsa.PublicKey)
 
 
 @command()
-def save_public_key(card: Card):
-    filename = input("Enter filename (no extension): ")
+def save_public_key(card: Card, filename: str):
 
     public_exponent, public_modulus = card.get_public_key()
     public_key = rsa.PublicKey(public_modulus, public_exponent)

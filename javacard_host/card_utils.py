@@ -106,7 +106,7 @@ class Card:
     def sign(self, message: str) -> bytes:
         if len(message) >= 128:
             print("Message too long")
-            return
+            return bytes()
         message_encoded = message.encode(TEXT_ENCODING)
         data = [c for c in message_encoded]
 
@@ -116,6 +116,7 @@ class Card:
 
         return response
 
+    """
     @command(auth=True)
     def hash_locally_and_sign(self, message: str) -> Tuple[bytes, bytes]:
         # hash message
@@ -127,6 +128,7 @@ class Card:
         signature = self.sign(hashed_message, TEXT_ENCODING)
 
         return hashed_bytes, signature
+    """
 
     @command()
     def factory_reset(self) -> bool:

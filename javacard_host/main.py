@@ -19,10 +19,11 @@ def get_card_or_exit() -> Card:
 
 def print_commands(commands: dict) -> None:
     for name, func in commands.items():
+        nb_args = func.__code__.co_argcount - 1
         if func.requires_auth:
-            print(f"[Auth] {name}, input args : {func.__code__.co_argcount - 1}")
+            print(f"[Auth] {name}, input args : {nb_args}")
         else:
-            print(f"       {name}, input args : {func.__code__.co_argcount - 1}")
+            print(f"       {name}, input args : {nb_args}")
 
 
 def test_everything() -> int:
@@ -52,21 +53,21 @@ def test_everything() -> int:
     public_exponent, public_modulus = card.get_public_key()
     public_key = rsa.PublicKey(public_modulus, public_exponent)
 
-    save_public_key(public_key, "public_key.pem")
+    save_public_key(card, "public_key")
     public_key_from_file = get_public_key_from_file("public_key.pem")
 
     # test sign
     print("\n--> test sign ------------------------------------------------------------")
     text = "please sign this me !"
 
-    signature = card.sign(text, TEXT_ENCODING)
+    signature = card.sign(text)
     print("is 1st valid :", rsa_verify_bool(text.encode(TEXT_ENCODING), bytes(signature), public_key_from_file))
 
     # test with long text
-    long_text = "".join(["a" for _ in range(300)])
+    long_text = "".join(["a" for _ in range(220)])
 
-    hashed_bytes, long_text_signature = card.hash_locally_and_sign(long_text, TEXT_ENCODING)
-    print("is 2nd valid :", rsa_verify_bool(hashed_bytes, bytes(long_text_signature), public_key_from_file))
+    long_text_signature = card.sign(long_text)
+    print("is 2nd valid :", rsa_verify_bool(long_text.encode(TEXT_ENCODING), bytes(long_text_signature), public_key_from_file))
 
     return 0
 
@@ -106,5 +107,5 @@ def repl() -> int:
 
 
 if __name__ == '__main__':
-    # test_everything()
+    #test_everything()
     repl()
