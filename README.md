@@ -120,9 +120,9 @@ sequenceDiagram
     
     critical Logged in
         C->>+A: SIGN MSG<br>B0 06 00 00 XX … 00
-        A->>C: Bad length value in Le "20", is the correct exact Le<br>6C 20
-        C->>A: GET_SIGNATURE<br>B0 C0 00 00 20
-        A->>-C: Signature<br>B0 C0 00 00 20 … 00
+        A->>C: Bad length value in Le "XX", is the correct exact Le<br>6C XX
+        C->>A: GET_SIGNATURE<br>B0 C0 00 00 XX
+        A->>-C: Signature<br>B0 C0 00 00 XX … 00
     end
 ```
 
