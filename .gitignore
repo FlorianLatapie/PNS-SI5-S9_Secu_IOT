@@ -27,5 +27,6 @@ replay_pid*
 */.idea/**
 */*.iml
 *.idea
-javacard_host/*.pem
-javacard_host/*.sig
+python_client/*.pem
+python_client/*.sig
+python_client/*.msg

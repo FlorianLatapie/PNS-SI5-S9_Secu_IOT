@@ -28,12 +28,12 @@ def rsa_verify_bool(message: bytes, signature: bytes, public_key: rsa.PublicKey)
 
 @command()
 def save_public_key(card: Card, filename: str):
-
     public_exponent, public_modulus = card.get_public_key()
     public_key = rsa.PublicKey(public_modulus, public_exponent)
 
     __save_public_key(public_key, filename + ".pem")
     print("Public key saved to", filename + ".pem")
+
 
 @command()
 def store_signature(card: Card):
@@ -41,12 +41,12 @@ def store_signature(card: Card):
     message = input("Enter message: ")
 
     signature = card.sign(message)
-    with open(filename+".sig", "wb") as f:
+    with open(filename + ".sig", "wb") as f:
         f.write(bytes(signature))
-        print("Signature stored to", filename+".sig")
-    with open(filename+".msg", "w") as f:
+        print("Signature stored to", filename + ".sig")
+    with open(filename + ".msg", "w") as f:
         f.write(message)
-        print("Message stored to", filename+".msg")
+        print("Message stored to", filename + ".msg")
     print("Signature stored to", filename)
 
 
@@ -62,11 +62,27 @@ def verify_signature(card: Card):
     if public_key is None:
         print("Public key not found")
         return
-    with open(filename+".sig", "rb") as f:
+    with open(filename + ".sig", "rb") as f:
         signature = f.read()
-    with open(filename+".msg", "r") as f:
+    with open(filename + ".msg", "r") as f:
         message = f.read()
     print("is valid :", rsa_verify_bool(message.encode(TEXT_ENCODING), signature, public_key))
+
+
+@command()
+def sign_file(card: Card):
+    filename = input("Enter filename: ")
+
+    print("loading file from", filename)
+    with open(filename, "r", encoding=TEXT_ENCODING) as f:
+        message = f.read()
+
+    signature = card.sign(message)
+    # strip .msg extension
+    filename = filename[:-4]
+    with open(filename + ".sig", "wb") as f:
+        f.write(bytes(signature))
+        print("Signature stored to", filename + ".sig")
 
 
 def get_computer_commands():
