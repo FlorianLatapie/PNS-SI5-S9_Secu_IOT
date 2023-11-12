@@ -1,14 +1,13 @@
-import hashlib
-from typing import Optional
+from typing import Optional, Tuple
 
-import rsa
+import hashlib
+
 from smartcard.Exceptions import NoCardException
 from smartcard.System import readers
 
-from smartcard.util import toHexString
-
 from card_config import *
 from scrape_eftlab import get_sw_description
+from utils import command, TEXT_ENCODING
 
 
 class APDU:
@@ -48,21 +47,11 @@ def deserialize_e_n(data):
     n = int.from_bytes(data[2 + len_e + 2:2 + len_e + 2 + len_n], "big")
     return e, n
 
-
-def command(auth=False):
-    def decorator(func):
-        func.is_command = True
-        func.requires_auth = auth
-        return func
-
-    return decorator
-
-
 class Card:
     def __init__(self, connection):
         self.connection = connection
 
-    def send_command(self, apdu: APDU):
+    def send_command(self, apdu: APDU) -> Tuple[bytes, int, int]:
         response, sw1, sw2 = self.connection.transmit(apdu.get_apdu())
 
         if sw1 == SW1_RETRY_WITH_LE:
@@ -78,53 +67,47 @@ class Card:
 
     @command()
     def debug(self) -> bytes:
-        print("Debug")
         apdu = APDU(APPLET_CLA, INS_DEBUG, 0, 0)
         response, sw1, sw2 = self.send_command(apdu)
 
         if is_success(sw1, sw2):
             print("Debug yes !")
-            print("Debug :", toHexString(response))
             print(bytes(response))
         else:
             print("Debug no !")
 
         return response
 
-    @command(auth=True)
-    def change_pin(self, new_pin: str) -> bool:
-        if len(new_pin) != PIN_LENGTH:
+    def __auth_and_get_success(self, instruction_number:hex, pin: str) -> bool:
+        if len(pin) != PIN_LENGTH:
             print("Pin must be 4 digits")
             return False
 
         # byte array of the new pin
-        data = [int(c) for c in new_pin]
+        data = [int(c) for c in pin]
 
-        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_MODIFY_PIN, 0, 0, data))
+        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, instruction_number, 0, 0, data))
 
-        success = is_success(sw1, sw2)
+        return is_success(sw1, sw2)
+
+    @command(auth=True)
+    def change_pin(self, new_pin: str) -> bool:
+        success = self.__auth_and_get_success(INS_MODIFY_PIN, new_pin)
         print("Code successfully changed") if success else print("Error code not changed")
         return success
 
     @command()
     def login(self, pin: str) -> bool:
-
-        if len(pin) != PIN_LENGTH:
-            print("Pin must be 4 digits")
-            return False
-
-        # byte array of the pin
-        data = [int(c) for c in pin]
-
-        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_LOGIN, 0, 0, data))
-
-        success = is_success(sw1, sw2)
+        success = self.__auth_and_get_success(INS_LOGIN, pin)
         print("Successfully logged in") if success else print("Error logging in")
         return success
 
     @command(auth=True)
-    def sign(self, message: str, encoding:str) -> bytes:
-        message_encoded = message.encode(encoding)
+    def sign(self, message: str) -> bytes:
+        if len(message) >= 128:
+            print("Message too long")
+            return
+        message_encoded = message.encode(TEXT_ENCODING)
         data = [c for c in message_encoded]
 
         response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_SIGN_MESSAGE, 0, 0, data))
@@ -133,6 +116,17 @@ class Card:
 
         return response
 
+    @command(auth=True)
+    def hash_locally_and_sign(self, message: str) -> Tuple[bytes, bytes]:
+        # hash message
+        hash_object = hashlib.sha256(message.encode(TEXT_ENCODING))
+        hashed_message = hash_object.hexdigest()
+        hashed_bytes: bytes = hashed_message.encode(TEXT_ENCODING)
+
+        # sign hash
+        signature = self.sign(hashed_message, TEXT_ENCODING)
+
+        return hashed_bytes, signature
 
     @command()
     def factory_reset(self) -> bool:
@@ -152,15 +146,9 @@ class Card:
         else:
             print("Error getting public key")
 
-    @command()
-    def get_private_key(self):
-        response, sw1, sw2 = self.send_command(APDU(APPLET_CLA, INS_SEND_PRIVATE_KEY, 0, 0))
-
-        if is_success(sw1, sw2):
-            print("Successfully got private key")
-            return deserialize_e_n(response)
-        else:
-            print("Error getting private key")
+    def commands(self):
+        members = {name: getattr(self, name) for name in dir(self)}
+        return {name: func for name, func in members.items() if hasattr(func, "is_command")}
 
 
 def get_card_connection() -> Optional[Card]:
