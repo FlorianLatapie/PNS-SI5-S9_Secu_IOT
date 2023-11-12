@@ -30,6 +30,8 @@ Une fonction `main` est disponible dans le fichier `main.py`. Le script agit com
 - Vous pouvez utiliser le terminal en mode interactif pour tester les fonctionnalités une par une en excutant simplement le script.
 - Sinon, il est possible d'exécuter tous les tests ,en décommentant `test_everything()` et commentant `repl()` dans le fichier `main.py`.
 
+Le code PIN par défaut est `1234`.
+
 ### Exemple d'utilisation
 
 Ensemble des commandes disponibles dans le script Python.
@@ -39,6 +41,21 @@ Ensemble des commandes disponibles dans le script Python.
 #### Login
 
 ![Alt text](imgs/login.png)
+
+#### Sign message
+
+##### Display signature
+
+![Alt text](imgs/sign_message.png)
+
+##### Store signature from terminal
+
+![Alt text](imgs/store_signature_1.png)
+![Alt text](imgs/store_signature_2.png)
+
+##### Store signature from file
+
+![Alt text](imgs/sign_file.png)
 
 #### Change PIN
 
@@ -58,26 +75,13 @@ Ensemble des commandes disponibles dans le script Python.
 
 La méthode renvoie $e$ et $n$ permettant de reconstruire la clé publique.
 
-#### Sign message
-
-![Alt text](imgs/sign_message.png)
-
 #### Save public key
 
 ![Alt text](imgs/save_public_key_1.png)
 ![Alt text](imgs/save_public_key_2.png)
-
-#### Store signature
-
-![Alt text](imgs/store_signature_1.png)
-![Alt text](imgs/store_signature_2.png)
 
 #### Verify signature
 
 En utilisant les données précédemment sauvegardées, on peut vérifier la signature :
 
 ![Alt text](imgs/verify_signature.png)
-
-#### Sign file
-
-![Alt text](imgs/sign_file.png)

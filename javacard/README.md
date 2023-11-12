@@ -1,5 +1,7 @@
 # Javacard
 
+Le code PIN par défaut est `1234`.
+
 ## Limitations
 
 La carte ne peut signer que des messages de taille inférieure à 127 octets. Nous ne comprenons pas d'où vient exactement cette limitation puisqu'un APDU peut normalement transporter dans la partie `data` jusqu'à 255 octets.
